@@ -264,8 +264,13 @@ class Project:
             "endpoint_module.py.jinja", globals={"isbool": lambda obj: obj.get_base_type_string() == "bool"}
         )
         for tag, collection in endpoint_collections_by_tag.items():
-            tag_dir = api_dir / tag
-            tag_dir.mkdir()
+            file_path = ""
+            # 根据接口Path的最上层路径
+            for endpoint in collection.endpoints:
+                file_path = endpoint.path.split('/')[1]
+            tag_dir = api_dir / file_path
+            # 允许同名文件夹存在
+            tag_dir.mkdir(parents=True, exist_ok=True)
 
             endpoint_init_path = tag_dir / "__init__.py"
             endpoint_init_template = self.env.get_template("endpoint_init.py.jinja")
@@ -275,13 +280,13 @@ class Project:
             )
 
             for endpoint in collection.endpoints:
-                module_path = tag_dir / f"{utils.PythonIdentifier(endpoint.name, self.config.field_prefix)}.py"
-                module_path.write_text(
-                    endpoint_template.render(
-                        endpoint=endpoint,
-                    ),
-                    encoding=self.config.file_encoding,
-                )
+                    module_path = tag_dir / f"{utils.PythonIdentifier(endpoint.name, self.config.field_prefix)}.py"
+                    module_path.write_text(
+                        endpoint_template.render(
+                            endpoint=endpoint,
+                        ),
+                        encoding=self.config.file_encoding,
+                    )
 
 
 def _get_project_for_url_or_path(
