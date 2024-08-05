@@ -13,6 +13,158 @@ Programmatic usage of this project (e.g., importing it as a Python module) and t
 
 The 0.x prefix used in versions for this project is to indicate that breaking changes are expected frequently (several times a year). Breaking changes will increment the minor number, all other changes will increment the patch number. You can track the progress toward 1.0 [here](https://github.com/openapi-generators/openapi-python-client/projects/2).
 
+## 0.22.0 (2024-08-05)
+
+### Breaking Changes
+
+- Omit any `None` passed as a query param in generated clients. Closes #285 (#331)
+- Attributes shadowing any builtin will now be renamed in generated clients (#360). Thanks @dblanchette!
+- If a schema references exactly one other schema in `allOf`, `oneOf`, or `anyOf` that referenced generated model will be used directly instead of generating a copy with another name. (#361)
+- Change reference resolution to use reference path instead of class name (fixes #342) (#366)
+- Some generated names will be different, solving some inconsistencies. (closes #369) (#375) Thanks @ramnes!
+- Improved the consistency of snake_cased identifiers which will cause some to be renamed [#413][#432]. Thanks @ramnes!
+- Allow more types in multipart payloads by defaulting to JSON for complex types (#372). Thanks @csymeonides-mf!
+- Normalize generated module names to allow more tags [#428 & #448]. Thanks @iamnoah & @forest-benchling!
+- `File` uploads can now only accept binary payloads (`BinaryIO`).
+- `datetime` is now considered a reserved word anywhere, so any properties which were named `datetime` will now be named `datetime_`.
+- Header values will be explicitly transformed or omitted instead of blindly passed to httpx as-is.
+- Model names generated from OpenAPI names with periods (`.`) in them will be different.
+- Validation of OpenAPI documents is now more strict.
+- Python 3.6 is officially not supported. The minimum version has been updated to reflect this.
+- Minimum required `attrs` version in generated clients is now 21.3.0.
+- Change the `Response.status_code` type to the `HTTPStatus` enum [#665]
+- Treat leading underscore as a sign of invalid identifier [#703]. Thanks @maxkomarychev!
+- run `post_hooks` in package directory instead of current directory if meta=none [#696, #697]. Thanks @brenmous and @wallagib!
+- Drop support for Python 3.7, put minimum version limit on Black (#754)
+
+### Features
+
+- add support for lists of basic python types (#165)
+- Added ability to generate clients with no metadata or setup.py. Closes #120 (#275)
+- Change model from_dict from staticmethod to classmethod (#292)
+- Avoid attributes named "self" (#301)
+- Detect OpenAPI documents of incorrect versions (closes #281) (#302)
+- Add "application/vnd.api+json" media type. (#307)
+- Serialize model query params (#316)
+- Add support for cookie parameters (#326)
+- Add --file-encoding CLI option (#330)
+- Add allOf support for model definitions (#98) (#321)
+- Support common parameters for paths (#376). Thanks @ramnes!
+- Add summary attribute to Endpoint for use in custom templates (#404)
+- Allow httpx 0.18.x in generated clients (#400)
+- Allow for attrs 21.x in generated clients (#412)
+- Allow references to non-object, non-enum types [#371][#418][#425]. Thanks @p1-ra!
+- Add option to fail on warning [#427]. Thanks @forest-benchling!
+- Allow custom templates for API and endpoint `__init__` files. [#442] Thanks @p1-ra!
+- Allow allOf enums to be subsets of one another or their base types [#379, #423, #461]. Thanks @forest-benchling! (#461)
+- Include both `UNSET` and `None` static types for nullable or optional query params [#421, #380, #462]. Thanks @forest-benchling!
+- Allow path parameters to be positional args [#429 & #464]. Thanks @tsotnikov!
+- Expose `python_identifier` and `class_name` functions to custom templates to rename with the same behavior as the parser.
+- Allow httpx 0.19.* (#481)
+- Allow customization of post-generation steps with the `post_hooks` config option.
+- Add verify_ssl option to generated Client, allowing users to ignore ssl verification (#497). Thanks @rtaycher!
+- Add httpx 0.20.* support (#514)
+- Improve error messages related to invalid arrays and circular or recursive references. (#519)
+- Support httpx 0.21.* (#537)
+- New and improved docstrings in generated functions and classes [#503, #505, #551]. Thanks @rtaycher!
+- Use httpx.request to allow bodies for all type of requests [#545, #547]. Thanks @MalteBecker!
+- use poetry-core as build backend in generated clients  [#565]. Thanks @fabaff!
+- Don't set a cap on allowed `attrs` version.
+- Allow httpx 0.22.* (#577)
+- Allow httpx 0.23.x (#617)
+- support `#/components/parameters` references [#288, #615, #653]. Thanks @jsanchez7SC!
+- Allow enums in headers [#663, #667]. Thanks @supermihi!
+- Support inlined form data schema in requestBody [#656, #662]. Thanks @supermihi!
+- Authorization header can now be customized in AuthenticatedClient [#660]. Thanks @supermihi!
+- improve the error message when parsing a response fails [#659]. Thanks @supermihi!
+- Include `__all__` in generated `__init__.py` files [#676, #631, #540, #675]. Thanks @EltonChou!
+- Support for recursive and circular references using lazy imports [#670, #338, #466]. Thanks @mtovt!
+- Add `endpoint_collections_by_tag` and `openapi` to the templating globals [#689]. Thanks @paulo-raca!
+- Support any content type ending in `+json` [#706, #709]. Thanks @XioNoX and @mtovt!
+- add `use_path_prefixes_for_title_model_names` config option for simpler model names [#559, #560]. Thanks @rtaycher!
+- Add `raise_on_unexpected_status` flag to generated `Client` [#593]. Thanks @JamesHinshelwood, @ramnes, @gwenshap, @theFong!
+- Add `http_timeout` config to set timeout getting document via `--url` [#718]. Thanks @Kircheneer!
+- Always generate enums with sorted members (#728)
+- Added support of follow HTTP redirects (#724). Thanks @expobrain & @emann!
+- Extend the UnexpectedStatus exception to include the response's content (#729)
+- support httpx 0.24 (#746)
+- Better typing (mypy) support for `Unset` (e.g., using if statements to check type) [#714, #752]. Thanks @taasan & @mcclurem! (#752)
+- Upgrade internal Pydantic use to v2. Thanks @KristinnVikar! (#779)
+- support httpx 0.25 (#854)
+- Support content-type with attributes (#655, #809, #858). Thanks @sherbang!
+- Support httpx 0.26 (#913)
+- Export `Unset` types from generated `types.py` (#927)
+- support httpx 0.27 (#974)
+- allow Ruff 0.4 (#1031)
+
+### Fixes
+
+- import Optional when properties are nullable or not required (#181)
+- Lower version requirements for python-dateutil in generated client #298 (#299)
+- Handle Unset Enums when deserializing (#306)
+- Nullable and optional properties which are models (#315)
+- Softly ignore invalid response status code (#327)
+- Fix deserialization of non-required properties (#334)
+- Indicate an error when duplicate models are detected rather than generating bad code (#336)
+- Sanitize endpoint tags during parsing (#328)
+- Async example in generated README.md (#337)
+- Deserialization of unions (#332). Thanks @forest-benchling!
+- Allow passing data with files in multipart. (Fixes #351) (#355)
+- Support empty strings in enums (closes #357) (#358). Thanks @ramnes!
+- Prevent duplicate return types in generated api functions (#365)
+- Problems with enum defaults in allOf (#363). Thanks @csymeonides-mf
+- Names of classes without titles will no longer include ref path (fixes #397) (#405). Thanks @ramnes!
+- Attempt to deduplicate endpoint parameters based on name and location (fixes #305) (#406)
+- Deserialization of optional nullable properties when no value is returned from the API [#420 & #381]. Thanks @forest-benchling!
+- Prevent crash when providing a non-string default to a string attribute. Fixes #414 (#415)
+- Properly strip out `UNSET` values from form data [#430]. Thanks @p1-ra!
+- Treat empty schemas like `Any` instead of `None`. Thanks @forest-benchling! [#417 & #445]
+- Support multipart requests with type: array [#452 & #451]. Thanks @csymeonides-mf @slamora and @dpursehouse
+- Parameters from `PathItem` can now be overriden in `Operation` [#458 & #457]. Thanks @mtovts!
+- Properly replace reserved words in class and module names [#475, #476]. Thanks @mtovts!
+- Prevent generating Python files named the same as reserved / key words.
+- Treat `true` and `false` as reserved words.
+- Don't crash the generator when one of the post-generation hooks is missing [fixes #479]. Thanks @chamini2 and @karolzlot!
+- Don't crash when a null is in an enum (fixes #500)
+- Don't allow mixed types in enums.
+- Properly label a path template issue as a warning (#494). Thanks @chamini2!
+- properly support JSON OpenAPI documents and config files [#488, #509, #515]. Thanks @tardyp and @Gelbpunkt! (#515)
+- Allow None in enum properties [#504, #512, #516]. Thanks @juspence!
+- setup.py should generate importable packages named <project>_client [#492, #520, #521]. Thanks @tedo-benchling & @Leem0sh!
+- Use isort "black" profile in generated clients [#523]. Thanks @johnthagen!
+- Remove unused CHANGELOG from generated setup.py [#529]. Thanks @johnthagen!
+- SSL verify argument to async clients [#533 & #510]. Thanks @fsvenson and @mvaught02!
+- Relative paths to config files [#538 & #544]. Thanks to @motybz, @MalteBecker, & @abhinav-cashify!
+- Basic types as JSON bodies and responses [#487 & #550]. Thanks @Gelbpunkt!
+- Multipart uploads for httpx >= 0.19.0 [#508, #548]. Thanks @skuo1-ilmn & @kairntech!
+- Generate valid code when a property of a model is named "datetime" [#557 & #558]. Thanks @kmray!
+- Non-string header values [#552, #553, #566]. Thanks @John98Zakaria!
+- treat period as a delimiter in names (#546). Thanks @alexifm!
+- OpenAPI schema validation issues (#426, #568). Thanks @p1-ra!
+- Include nested packages in generated setup.py [#575, #576]. Thanks @tedo-benchling!
+- Error generating clients with dates or datetimes in mutlipart/form [#579]. Thanks @lsaavedr!
+- Type annotations for optional dates and datetimes in multipart/form (#580)
+- typos in generated README (#586). Thanks @adelevie!
+- Allow tokenUrl to be relative [#618]. Thanks @Fokko!
+- Allow relative references in all URLs [#630]. Thanks @jtv8!
+- Invalid code generation with some `oneOf` and `anyOf` combinations [#603, #642]. Thanks @jselig-rigetti!
+- Keep trailing newlines in generated files [#646, #654]. Thanks @eliask!
+- Exception when parsing documents which contain callbacks [#661]. Thanks @dachucky!
+- If data.type is None but has data.properties, assume type is object [#691, #674]. Thanks @ahuang11!
+- Version bump due to PyPI error
+- Support Python 3.11.0 (#701)
+- generated docstring for `Client.get_headers` function [#713]. Thanks @rtaycher!
+- Respect `required` field in parameters included with `$ref` (#737)
+- Prevent backslashes in descriptions from breaking docstrings [#735]. Thanks @robertschweizer & @bryan-hunt! (#735)
+- Remove Response[] from docstring of non-detailed functions (#741). Thanks @robertschweizer!
+- Parsing endpoint content types with semicolon separator (#727). Thanks @expobrain!
+- pyproject_no_poetry.toml.jinja template can be used to configure black and isort (closes #750) (#751)
+- Allow parameters named "client" and "url" [#758, #762, #765]. Thanks @truenicoco & @juanber84!
+- Naming conflicts when properties are named "field" or "define" (#781, #793). Thanks @david-dotorigin
+- Remove spurious field_dict.update({}) for types without properties (#969)
+- Indent of generated code for non-required lists. Thanks @sfowl! (#1050)
+- Parsing requestBody with $ref (#633)
+
 ## 0.21.2 (2024-07-20)
 
 ### Features
